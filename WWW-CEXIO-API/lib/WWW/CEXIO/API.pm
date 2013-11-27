@@ -27,6 +27,14 @@ Version 0.01
     });
     my $acct_balance = $priv_api->get_account_balance();
 
+=head1 DESCRIPTION
+
+    This module exposes the cex.io API.  For the sake of speed, no returned
+    objects are encapsulated; they are simply Perl array refs or hash refs
+    representing the JSON returned by the API call.
+
+    For more information about the API, please see L<https://cex.io/api>.
+
 =cut
 
 our $VERSION = '0.01';
