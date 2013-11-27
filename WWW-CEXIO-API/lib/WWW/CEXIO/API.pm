@@ -33,6 +33,7 @@ use common::sense;
 use Moose;
 
 use Carp;
+use Digest::SHA;
 use JSON;
 use LWP::UserAgent;
 
@@ -43,19 +44,6 @@ use constant RESTRICT_CALL_INTERVAL => 10 * 60;
 
 use constant DEFAULT_TIMEOUT => 10;
 use constant API_BASE => 'https://cex.io/api/';
-
-sub BUILD
-{
-    my ($self, $args_ref) = @_;
-
-    $self->{_ua} = LWP::UserAgent->new
-    (
-        agent   => "www-cexio-api-perl/$VERSION",
-        timeout => $self->timeout(),
-    );
-    $self->{_json} = JSON->new();
-    $self->{_nonce} = 0;
-}
 
 has 'force_restrict' =>
 (
@@ -70,6 +58,47 @@ has 'timeout' =>
     isa     => 'Int',
     default => DEFAULT_TIMEOUT,
 );
+
+has 'api_key' =>
+(
+    is       => 'ro',
+    isa      => 'Str',
+    required => 0,
+);
+
+has 'api_secret' =>
+(
+    is       => 'ro',
+    isa      => 'Str',
+    required => 0,
+);
+
+has 'username' =>
+(
+    is       => 'ro',
+    isa      => 'Str',
+    required => 0,
+);
+
+has 'nonce_start' =>
+(
+    is       => 'ro',
+    isa      => 'Int',
+    required => 0,
+);
+
+sub BUILD
+{
+    my ($self, $args_ref) = @_;
+
+    $self->{_ua} = LWP::UserAgent->new
+    (
+        agent   => "www-cexio-api-perl/$VERSION",
+        timeout => $self->timeout(),
+    );
+    $self->{_json} = JSON->new();
+    $self->{_nonce} = $self->nonce_start() // time();
+}
 
 =head1 SUBROUTINES/METHODS
 
@@ -99,15 +128,62 @@ sub get_order_book
     return $self->_get_url($action);
 }
 
+sub get_account_balance
+{
+    my ($self) = @_;
+    my $action = 'balance/';
+    return $self->_get_private_url($action);
+}
+
+sub _generate_nonce
+{
+    my ($self) = @_;
+    return $self->{_nonce}++;
+}
+
+sub _generate_signature
+{
+    my ($self) = @_;
+
+    confess 'must provide username' unless $self->username();
+    confess 'must provide api_key' unless $self->api_key();
+    confess 'must provide api_secret' unless $self->api_secret();
+
+    my $nonce = $self->_generate_nonce();
+    my $message = $nonce  . $self->username() . $self->api_key();
+
+    return
+    {
+        signature => uc(Digest::SHA::hmac_sha256_hex($message,
+                                                     $self->api_secret())),
+        nonce => $nonce,
+    };
+}
+
+sub _get_private_url
+{
+    my ($self, $action) = @_;
+    my $sig = $self->_generate_signature();
+    my %form =
+    (
+        key       => $self->api_key(),
+        signature => $sig->{signature},
+        nonce     => $sig->{nonce},
+    );
+    return $self->_get_url($action, 'post', \%form);
+}
+
 # Perform an HTTP GET request against the specified URL (API_BASE concatenated
 # with $action) and return the decoded JSON as a Perl data structure.  Return
 # undef if something goes wrong.
 sub _get_url
 {
-    my ($self, $action) = @_;
+    my ($self, $action, $verb, $form_ref) = @_;
     confess 'Action must be defined' unless $action;
+    $verb //= 'get';
+    $verb = lc($verb);
     my $url = API_BASE . $action;
-    my $resp = $self->{_ua}->get($url);
+    my $resp = $self->{_ua}->$verb($url, $form_ref);
     my $ret;
     if ($resp->is_success())
     {
