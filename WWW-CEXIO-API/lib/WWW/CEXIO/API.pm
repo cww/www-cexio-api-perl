@@ -13,7 +13,19 @@ Version 0.01
     use WWW::CEXIO::API;
 
     my $api = WWW::CEXIO::API->new();
-    ...
+    # Available symbols are:
+    # GHS/BTC NMC/BTC GHS/NMC
+    my $ticker = $api->get_ticker('GHS/BTC');
+    my $order_book = $api->get_order_book('GHS/BTC');
+
+    # Public API calls may be accessed with a private-enabled object, too.
+    my $priv_api = WWW::CEXIO::API->new
+    ({
+        api_key    => 'foo',
+        api_secret => 'bar',
+        username   => 'baz',
+    });
+    my $acct_balance = $priv_api->get_account_balance();
 
 =cut
 
