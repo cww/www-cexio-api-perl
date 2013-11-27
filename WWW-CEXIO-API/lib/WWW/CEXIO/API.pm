@@ -167,7 +167,7 @@ sub _generate_signature
     };
 }
 
-# Perform an HTTP POST request against the specified URL(API_BASE
+# Perform an HTTP POST request against the specified URL (API_BASE
 # concatenanted with $action) and return the decoded JSON as a Perl data
 # structure.  Return undef if something goes wrong.
 sub _get_private_url
