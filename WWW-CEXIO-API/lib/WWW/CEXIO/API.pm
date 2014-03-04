@@ -122,8 +122,7 @@ Get the current ticker data for the specified currency pair.
 sub get_ticker
 {
     my ($self, $currencies) = @_;
-    confess 'Currency pair must be defined' unless defined $currencies;
-    confess 'Currency pair must contain a slash' unless $currencies =~ m|/|;
+    __validate_currency_pair($currencies);
     my $action = "ticker/$currencies";
     return $self->_get_url($action);
 }
@@ -184,6 +183,74 @@ sub get_account_balance
 {
     my ($self) = @_;
     my $action = 'balance/';
+    return $self->_get_private_url($action);
+}
+
+=head2 get_open_orders($currencies)
+
+Get the current open orders for the specified currency pair and for the
+account specified by the api_key, api_secret, and username constructor
+parameters.
+
+The returned value is an array ref.  If the account has no open orders, the
+array ref will be defined but empty.  If the account has open orders, each
+will be represented by a hash ref with the following keys.
+
+type:
+
+=over
+
+"buy" or "sell"
+
+=back
+
+price:
+
+=over
+
+The limit price for the order.
+
+=back
+
+id:
+
+=over
+
+The order ID
+
+=back
+
+pending:
+
+=over
+
+The number of items in the order that still need to be executed.
+
+=back
+
+amount:
+
+=over
+
+The total number of items in the order.
+
+=back
+
+time:
+
+=over
+
+The timestamp of the order, in integer milliseconds since the epoch.
+
+=back
+
+=cut
+
+sub get_open_orders
+{
+    my ($self, $currencies) = @_;
+    __validate_currency_pair($currencies);
+    my $action = "open_orders/$currencies";
     return $self->_get_private_url($action);
 }
 
@@ -263,6 +330,13 @@ sub _get_url
     }
 
     return $ret;
+}
+
+sub __validate_currency_pair
+{
+    my ($cur_pair) = @_;
+    confess 'Currency pair must be defined' unless defined $cur_pair;
+    confess 'Currency pair must contain a slash' unless $cur_pair =~ m|/|;
 }
 
 =head1 AUTHOR
