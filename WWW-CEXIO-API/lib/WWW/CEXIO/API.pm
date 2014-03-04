@@ -275,7 +275,7 @@ L<http://search.cpan.org/dist/WWW-CEXIO-API/>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2013 Colin Wetherbee.
+Copyright 2013, 2014 Colin Wetherbee.
 
 This program is distributed under the MIT (X11) License:
 L<http://www.opensource.org/licenses/mit-license.php>
