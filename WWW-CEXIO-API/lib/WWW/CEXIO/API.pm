@@ -148,6 +148,36 @@ sub get_order_book
 Get the account balance for the account specified by the api_key, api_secret,
 and username constructor parameters.
 
+The returned hash ref will contain the following keys.
+
+NMC, DVC, IXC, LTC, BTC, GHS:
+
+=over
+
+    The values for each of these keys is a hash ref, always with an
+    "available" key and also with an "orders" key if the
+    corresponding currency/commodity is tradeable on cex.io.  The values for
+    these keys are floating-point numbers representing the user's balance in
+    the respective category.
+
+=back
+
+username:
+
+=over
+
+    The username of the account.
+
+=back
+
+timestamp:
+
+=over
+
+    The timestamp (integer seconds since the epoch) of the API response.
+
+=back
+
 =cut
 
 sub get_account_balance
