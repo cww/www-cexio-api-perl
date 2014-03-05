@@ -136,8 +136,7 @@ Get the current order book for the specified currency pair.
 sub get_order_book
 {
     my ($self, $currencies) = @_;
-    confess 'Currency pair must be defined' unless defined $currencies;
-    confess 'Currency pair must contain a slash' unless $currencies =~ m|/|;
+    __validate_currency_pair($currencies);
     my $action = "order_book/$currencies";
     return $self->_get_url($action);
 }
