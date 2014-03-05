@@ -309,7 +309,9 @@ sub _get_url
     $verb //= 'get';
     $verb = lc($verb);
     my $url = API_BASE . $action;
-    my $resp = $self->{_ua}->$verb($url, $form_ref);
+    my $resp = $form_ref ?
+               $self->{_ua}->$verb($url, $form_ref) :
+               $self->{_ua}->$verb($url);
     my $ret;
     if ($resp->is_success())
     {
