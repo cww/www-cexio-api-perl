@@ -343,6 +343,27 @@ sub __validate_currency_pair
     confess 'Currency pair must contain a slash' unless $cur_pair =~ m|/|;
 }
 
+=head1 ERRORS
+
+The API documentation provided by cex.io is poor at best.  I've gathered
+that, if an error occurs on the server side (as a result of, for example, an
+invalid or incorrect parameter being passed to an API call), then the
+resulting API call return value (a hash ref) will contain a single key
+named "error" with a value containing a string message that describes the
+error.
+
+=head1 LIMITATIONS
+
+cex.io does not provide any service guarantees, SLAs, or even any inkling that
+the API won't disappear entirely at any moment.  Indeed, 'sell' could mean
+'buy' tomorrow, and we users would be none the wiser.  I don't personally
+recommend using this module or any other functionality related to cex.io with
+any currency that you actually care about keeping.
+
+(That said, I think cex.io is a great service, and the people running it have
+been pretty good about communication for as long as I've been using it.  Have
+fun and make some money!)
+
 =head1 AUTHOR
 
 Colin Wetherbee, C<< <cww at cpan.org> >>
