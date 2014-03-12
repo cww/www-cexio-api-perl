@@ -286,15 +286,18 @@ sub _generate_signature
 # Perform an HTTP POST request against the specified URL (API_BASE
 # concatenanted with $action) and return the decoded JSON as a Perl data
 # structure.  Return undef if something goes wrong.
+#
+# Additional form parameters may be specified in the %extra hash.
 sub _get_private_url
 {
-    my ($self, $action) = @_;
+    my ($self, $action, %extra) = @_;
     my $sig = $self->_generate_signature();
     my %form =
     (
         key       => $self->api_key(),
         signature => $sig->{signature},
         nonce     => $sig->{nonce},
+        %extra,
     );
     return $self->_get_url($action, 'post', \%form);
 }
